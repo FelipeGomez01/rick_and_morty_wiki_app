@@ -14,8 +14,9 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget
       centerTitle: false,
       elevation: 0.0,
       title: SvgPicture.asset(
-        'assets/images/logo_alfred.svg'
-      ),
+        'assets/images/logo_alfred.svg',
+        width: 80,
+      )
     );
   }
 

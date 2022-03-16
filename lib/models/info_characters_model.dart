@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'character_model.dart';
 
-class ListCharactersModel {
-  ListCharactersModel({
+class InfoCharactersModel {
+  InfoCharactersModel({
     required this.info,
     required this.results,
   });
@@ -11,11 +11,11 @@ class ListCharactersModel {
   final Info info;
   final List<CharacterModel> results;
 
-  factory ListCharactersModel.fromJson(String str) => ListCharactersModel.fromMap(json.decode(str));
+  factory InfoCharactersModel.fromJson(String str) => InfoCharactersModel.fromMap(json.decode(str));
 
   String toJson() => json.encode(toMap());
 
-  factory ListCharactersModel.fromMap(Map<String, dynamic> json) => ListCharactersModel(
+  factory InfoCharactersModel.fromMap(Map<String, dynamic> json) => InfoCharactersModel(
     info: Info.fromMap(json["info"]),
     results: List<CharacterModel>.from(json["results"].map((x) => CharacterModel.fromMap(x))),
   );

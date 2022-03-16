@@ -5,7 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 import 'package:rick_and_morty_wiki_app/config/constants.dart';
-import 'package:rick_and_morty_wiki_app/models/list_characters_model.dart';
+import 'package:rick_and_morty_wiki_app/models/character_model.dart';
+import 'package:rick_and_morty_wiki_app/models/info_characters_model.dart';
 
 class HomeProvider extends ChangeNotifier
 {
@@ -15,11 +16,13 @@ class HomeProvider extends ChangeNotifier
 
   ScrollController scrollController = ScrollController();
 
-  late ListCharactersModel characters;
+  late InfoCharactersModel infoCharacters;
+
+  late List<CharacterModel> listCharacters = [];
 
   bool isLoading = true;
 
-  int page = 0;
+  int _page = 0;
 
   int numEpisodes = 0;
 
@@ -27,14 +30,16 @@ class HomeProvider extends ChangeNotifier
 
   bool _pendingRequest = false;
 
-  //List<>
+  bool paginate = true;
+
+  bool failedRequest = false;
 
   void init(){
     scrollController.addListener(() {
-      if(scrollController.position.pixels ==
-         scrollController.position.maxScrollExtent && !_pendingRequest)
+      final pixels = scrollController.position.pixels;
+      final maxScrollExtent = scrollController.position.maxScrollExtent;
+      if(pixels == maxScrollExtent && paginate && !_pendingRequest)
       {
-        print('if');
         getCharacters();
         _pendingRequest = true;
       }
@@ -42,32 +47,39 @@ class HomeProvider extends ChangeNotifier
   }
 
   Future<void> getData() async {
-    await getNumEpisodes();
+    isLoading = true;
+
+    var data = await sendRequest('api/episode');
+    numEpisodes = data['info']['count'];
 
     await getMostPopulatedLocation();
 
     await getCharacters();
+
+    isLoading = false;
   }
 
-  Future<void> getNumEpisodes() async {
-    var url = Uri.https(apiUrl,'api/episode');
+  sendRequest(String route, [Map<String,dynamic> parameters = const {}]) async {
+    var url = Uri.https(apiUrl,route,parameters);
 
     var response = await http.get(url);
 
-    numEpisodes = json.decode(response.body)['info']['count'];
+    failedRequest = response.statusCode != 200;
+
+    var data = json.decode(response.body);
+
+    return data;
   }
 
   Future<void> getMostPopulatedLocation() async {
-    var url = Uri.https(apiUrl, 'api/location');
+    var data = await sendRequest('api/location');
 
-    var response = await http.get(url);
-
-    List data = json.decode(response.body)['results'].toList();
+    List locations = data['results'].toList();
 
     int previousCount = 0;
     String nameLocation = '';
 
-    for (var location in data) {
+    for (var location in locations) {
       if(location['residents'].length > previousCount){
         previousCount = location['residents'].length;
         nameLocation = location['name'];
@@ -78,22 +90,25 @@ class HomeProvider extends ChangeNotifier
   }
 
   Future<void> getCharacters() async {
-    isLoading = true;
+    _page++;
 
-    page++;
+    var data = await sendRequest('api/character', {'page': '$_page'});
 
-    var url = Uri.https(apiUrl,'api/character',{
-      'page': '$page'
-    });
+    infoCharacters = InfoCharactersModel.fromMap(data);
 
-    var response = await http.get(url);
+    paginate = _page < infoCharacters.info.pages;
 
-    characters = ListCharactersModel.fromJson(response.body);
-
-    isLoading = false;
+    listCharacters.addAll(infoCharacters.results);
 
     _pendingRequest = false;
 
     notifyListeners();
+  }
+
+  @override
+  void dispose()
+  {
+    super.dispose();
+    scrollController.dispose();
   }
 }
