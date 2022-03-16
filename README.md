@@ -1,16 +1,9 @@
 # rick_and_morty_wiki_app
 
-A new Flutter project.
 
-## Getting Started
+El Proyecto quedo en la version de Flutter 2.13.0-0.0.pre.73
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+para ejecutarse no requiere ningun paso fuera de lo habitual, solo
+descargar las librerias del pubspec.yaml y se puede ejecutar con
+normalidad, se probo sobre los emuladores del API de android 27, 28 y 29
+y tambien sobre el emulador de iOS del iPhone 13.
